@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rap Doces Diversos - Consultar Pedido</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Google Fonts: Plus Jakarta Sans & Fredoka -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --rap-orange: #FF7300;
+      --rap-pink: #FF3B82;
+      --rap-gradient: linear-gradient(135deg, #FF7300 0%, #FF3B82 100%);
+      --bg-soft: #F8F9FA;
+    }
+
+    body {
+      background-color: var(--bg-soft);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #2D3748;
+      padding-bottom: 110px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* BANNER/HEADER COM O NOME BEM GRANDE NO MEIO */
+    .brand-hero {
+      text-align: center;
+      padding: 35px 20px 20px 20px;
+    }
+
+    .brand-title {
+      font-family: 'Fredoka', 'Plus Jakarta Sans', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 800;
+      background: var(--rap-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .brand-subtitle {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-control {
+      border-radius: 14px;
+      border: 2px solid #E2E8F0;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+      border-color: var(--rap-orange);
+      box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.15);
+    }
+
+    .btn-search {
+      background: var(--rap-gradient);
+      color: white;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      padding: 0 20px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-search:hover {
+      opacity: 0.95;
+      color: white;
+    }
+
+    /* CARD DE PEDIDO */
+    .order-card {
+      background: #FFFFFF;
+      border: 1px solid #EDF2F7;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+    }
+
+    .status-pendente {
+      background: #FEFCBF;
+      color: #744210;
+    }
+
+    .status-preparando {
+      background: #C6F6D5;
+      color: #22543D;
+    }
+
+    .status-entregue {
+      background: #EBF8FF;
+      color: #2B6CB0;
+    }
+
+    /* MENU NAVEGAÇÃO INFERIOR */
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      z-index: 1000;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .nav-item-link {
+      text-decoration: none;
+      color: #A0AEC0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .nav-item-link.active {
+      color: var(--rap-pink);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      background: var(--rap-pink);
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container max-w-md" style="max-width: 500px;">
+
+    <!-- NOME BEM GRANDE NO MEIO DA TELA -->
+    <div class="brand-hero">
+      <div class="mb-1">
+        <i class="bi bi-shop fs-1" style="color: var(--rap-pink);"></i>
+      </div>
+      <h1 class="brand-title">RAP DOCES</h1>
+      <p class="brand-subtitle">ACOMPANHE SEU PEDIDO</p>
+    </div>
+
+    <!-- CAMPO PARA DIGITAR O CÓDIGO DO PEDIDO -->
+    <div class="mb-4">
+      <form onsubmit="buscarPedidoPorCodigo(event)">
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="codigoPedidoInput" 
+            class="form-control" 
+            placeholder="Digite o código do pedido (Ex: 6384)..."
+            required
+          >
+          <button type="submit" class="btn btn-search">
+            <i class="bi bi-search me-1"></i> Buscar
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ÁREA ONDE APARECE O PEDIDO APÓS DIGITAR O CÓDIGO -->
+    <div id="containerPedidos">
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-search fs-1 mb-2 d-block text-secondary"></i>
+        <p class="fw-bold mb-1">Digite o código do seu pedido acima</p>
+        <small>As informações do pedido aparecerão aqui após a busca.</small>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MENU DE NAVEGAÇÃO INFERIOR -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item-link">
+      <i class="bi bi-grid-fill fs-5"></i>
+      <span>Início</span>
+    </a>
+    <a href="carrinho.html" class="nav-item-link position-relative">
+      <i class="bi bi-bag-fill fs-5"></i>
+      <span>Carrinho</span>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </a>
+    <a href="consultar.html" class="nav-item-link active">
+      <i class="bi bi-clock-history fs-5"></i>
+      <span>Status</span>
+    </a>
+  </div>
+
+  <script>
+    function inicializarPagina() {
+      // Atualiza badge do carrinho
+      const carrinho = JSON.parse(localStorage.getItem("carrinho_rap_doces")) || [];
+      document.getElementById("cartBadge").innerText = carrinho.length;
+    }
+
+    function buscarPedidoPorCodigo(e) {
+      e.preventDefault();
+
+      const codigoDigitado = document.getElementById("codigoPedidoInput").value.trim().replace("#", "");
+      const container = document.getElementById("containerPedidos");
+
+      if (!codigoDigitado) return;
+
+      const todosPedidos = JSON.parse(localStorage.getItem("meus_pedidos_rap")) || [];
+
+      // Procura o pedido que contenha os últimos dígitos correspondentes ao código
+      const pedidosEncontrados = todosPedidos.filter(pedido => {
+        const idCurto = pedido.id.toString().slice(-4);
+        return idCurto === codigoDigitado || pedido.id.toString() === codigoDigitado;
+      });
+
+      if (pedidosEncontrados.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-x-circle fs-1 mb-2 d-block text-danger"></i>
+            <p class="fw-bold mb-1">Pedido #${codigoDigitado} não encontrado</p>
+            <small>Verifique se o código digitado está correto e tente novamente.</small>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+
+      pedidosEncontrados.forEach(pedido => {
+        let statusClass = "status-pendente";
+        if (pedido.status === "Preparando") statusClass = "status-preparando";
+        if (pedido.status === "Entregue") statusClass = "status-entregue";
+
+        let listaItensHtml = "";
+        pedido.itens.forEach(item => {
+          listaItensHtml += `
+            <div class="d-flex justify-content-between align-items-center small py-1 border-bottom border-light">
+              <span><strong>${item.doceNome}</strong> (${item.variacaoNome})</span>
+              <span class="fw-bold">R$ ${item.precoUnitario.toFixed(2).replace(".", ",")}</span>
+            </div>
+          `;
+        });
+
+        container.innerHTML += `
+          <div class="order-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="fw-bold text-dark" style="font-size: 0.95rem;">Pedido #${pedido.id.toString().slice(-4)}</span>
+              <span class="status-badge ${statusClass}">${pedido.status || 'Pendente'}</span>
+            </div>
+
+            <div class="text-muted small mb-2">
+              <i class="bi bi-person me-1"></i> ${pedido.cliente}<br>
+              <i class="bi bi-calendar3 me-1"></i> ${pedido.data}
+            </div>
+
+            <div class="bg-light p-2 rounded-3 mb-3">
+              ${listaItensHtml}
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="small fw-bold text-secondary">Valor Total:</span>
+              <span class="fw-extrabold text-danger fs-5">R$ ${(pedido.total || 0).toFixed(2).replace(".", ",")}</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    inicializarPagina();
+  </script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rap Doces Diversos - Carrinho</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Fonte Google Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --rap-orange: #FF7300;
+      --rap-pink: #FF3B82;
+      --rap-gradient: linear-gradient(135deg, #FF7300 0%, #FF3B82 100%);
+      --bg-soft: #F8F9FA;
+    }
+
+    body {
+      background-color: var(--bg-soft);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #2D3748;
+      padding-bottom: 110px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .cart-header {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 16px 20px;
+    }
+
+    .cart-item {
+      background: #FFFFFF;
+      border: 1px solid #EDF2F7;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .item-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .form-control {
+      border-radius: 12px;
+      border: 2px solid #E2E8F0;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+
+    .form-control:focus {
+      border-color: var(--rap-orange);
+      box-shadow: 0 0 0 3px rgba(255, 115, 0, 0.15);
+    }
+
+    /* ESTILOS DA SELEÇÃO DE FORMA DE PAGAMENTO COM ÍCONES */
+    .payment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .payment-card {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 12px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      user-select: none;
+      min-height: 85px;
+    }
+
+    .payment-card i {
+      font-size: 1.5rem;
+      color: #718096;
+      transition: all 0.2s ease;
+    }
+
+    .payment-card span {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #4A5568;
+    }
+
+    .payment-badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #718096;
+      line-height: 1.1;
+    }
+
+    .payment-card:hover {
+      border-color: var(--rap-orange);
+      transform: translateY(-2px);
+    }
+
+    .payment-card.active {
+      border-color: var(--rap-orange);
+      background: #FFF5F0;
+      box-shadow: 0 4px 12px rgba(255, 115, 0, 0.15);
+    }
+
+    .payment-card.active i, 
+    .payment-card.active span {
+      color: var(--rap-orange);
+    }
+
+    .payment-card.active .payment-badge {
+      color: #E53E3E;
+      font-weight: 700;
+    }
+
+    .btn-confirm {
+      background: var(--rap-gradient);
+      color: #FFFFFF;
+      font-weight: 700;
+      border: none;
+      border-radius: 50px;
+      padding: 14px;
+      width: 100%;
+      font-size: 1rem;
+      box-shadow: 0 6px 20px rgba(255, 59, 130, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-confirm:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(255, 59, 130, 0.4);
+      color: #FFF;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      z-index: 1000;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .nav-item-link {
+      text-decoration: none;
+      color: #A0AEC0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .nav-item-link.active {
+      color: var(--rap-pink);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      background: var(--rap-pink);
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topo -->
+  <div class="cart-header mb-4 d-flex align-items-center gap-2">
+    <a href="index.html" class="text-dark fs-5"><i class="bi bi-arrow-left"></i></a>
+    <h6 class="fw-bold mb-0">Seu Carrinho</h6>
+  </div>
+
+  <div class="container max-w-md" style="max-width: 500px;">
+    <!-- Lista de Itens no Carrinho -->
+    <h6 class="fw-bold mb-3 text-secondary" style="font-size: 0.8rem; letter-spacing: 0.5px;">ITENS SELECIONADOS</h6>
+    <div id="listaCarrinho"></div>
+
+    <div class="d-flex justify-content-between align-items-center my-4 p-3 bg-white rounded-3 border">
+      <span class="fw-bold">Total:</span>
+      <span class="fw-extrabold fs-4 text-danger" id="valorTotal">R$ 0,00</span>
+    </div>
+
+    <!-- Formulário de Entrega e Checkout -->
+    <h6 class="fw-bold mb-3 text-secondary" style="font-size: 0.8rem; letter-spacing: 0.5px;">DADOS DE ENTREGA</h6>
+    <form id="formCheckout" onsubmit="finalizarPedido(event)">
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-muted">Seu Nome Completo *</label>
+        <input type="text" class="form-control" id="nomeCliente" placeholder="Ex: Maria Silva" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-muted">Seu WhatsApp *</label>
+        <input 
+          type="tel" 
+          class="form-control" 
+          id="whatsAppCliente" 
+          placeholder="(16) 99999-9999" 
+          maxlength="15" 
+          oninput="mascaraTelefone(this)"
+          required
+        >
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-muted">Endereço de Entrega Completo *</label>
+        <input type="text" class="form-control" id="enderecoCliente" placeholder="Rua, Número, Bairro, Ap..." required>
+      </div>
+
+      <!-- Seleção Visual de Forma de Pagamento com Ícones -->
+      <h6 class="fw-bold my-3 text-secondary" style="font-size: 0.8rem; letter-spacing: 0.5px;">FORMA DE PAGAMENTO *</h6>
+      <div class="payment-grid mb-3">
+        <div class="payment-card" onclick="selecionarPagamento('Pix', this)">
+          <i class="bi bi-qr-code"></i>
+          <span>Pix</span>
+          <small class="payment-badge" id="badge-pix"></small>
+        </div>
+        <div class="payment-card" onclick="selecionarPagamento('Cartão', this)">
+          <i class="bi bi-credit-card"></i>
+          <span>Cartão</span>
+          <small class="payment-badge" id="badge-cartao"></small>
+        </div>
+        <div class="payment-card" onclick="selecionarPagamento('Dinheiro', this)">
+          <i class="bi bi-cash-stack"></i>
+          <span>Dinheiro</span>
+          <small class="payment-badge" id="badge-dinheiro"></small>
+        </div>
+      </div>
+
+      <!-- Campo de Troco exibido apenas se selecionar Dinheiro -->
+      <div class="mb-4 d-none" id="boxTroco">
+        <label class="form-label small fw-bold text-muted">Troco para quanto?</label>
+        <input type="text" class="form-control" id="trocoPara" placeholder="Ex: R$ 50,00 ou Não preciso de troco">
+      </div>
+
+      <button type="submit" class="btn btn-confirm mt-2 mb-4">
+        <i class="bi bi-whatsapp me-2"></i> Confirmar e Enviar Pedido
+      </button>
+    </form>
+  </div>
+
+  <!-- Menu de Navegação Inferior -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item-link">
+      <i class="bi bi-grid-fill fs-5"></i>
+      <span>Início</span>
+    </a>
+    <a href="carrinho.html" class="nav-item-link active position-relative">
+      <i class="bi bi-bag-fill fs-5"></i>
+      <span>Carrinho</span>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </a>
+    <a href="consultar.html" class="nav-item-link">
+      <i class="bi bi-clock-history fs-5"></i>
+      <span>Status</span>
+    </a>
+  </div>
+
+  <script>
+    let carrinho = [];
+    let formaPagamentoSelecionada = "";
+
+    function carregarCarrinho() {
+      carrinho = JSON.parse(localStorage.getItem("carrinho_rap_doces")) || [];
+      const divLista = document.getElementById("listaCarrinho");
+      const badge = document.getElementById("cartBadge");
+      
+      badge.innerText = carrinho.length;
+
+      if (carrinho.length === 0) {
+        divLista.innerHTML = `
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-bag-x fs-1 mb-2 d-block text-secondary"></i>
+            Seu carrinho está vazio.
+          </div>
+        `;
+        document.getElementById("valorTotal").innerText = "R$ 0,00";
+        return;
+      }
+
+      let total = 0;
+      divLista.innerHTML = "";
+
+      carrinho.forEach((item, index) => {
+        total += item.precoUnitario;
+        divLista.innerHTML += `
+          <div class="cart-item d-flex align-items-center justify-content-between gap-3">
+            <img src="${item.imagem}" class="item-img" alt="${item.doceNome}">
+            <div class="flex-grow-1">
+              <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">${item.doceNome}</h6>
+              <span class="text-muted small" style="font-size: 0.78rem;">${item.variacaoNome}</span>
+              <div class="fw-bold text-orange mt-1" style="font-size: 0.85rem;">R$ ${item.precoUnitario.toFixed(2).replace(".", ",")}</div>
+            </div>
+            <button class="btn btn-sm btn-light text-danger rounded-circle" onclick="removerItem(${index})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        `;
+      });
+
+      document.getElementById("valorTotal").innerText = `R$ ${total.toFixed(2).replace(".", ",")}`;
+    }
+
+    function removerItem(index) {
+      carrinho.splice(index, 1);
+      localStorage.setItem("carrinho_rap_doces", JSON.stringify(carrinho));
+      carregarCarrinho();
+    }
+
+    /* MÁSCARA DE TELEFONE AUTOMÁTICA */
+    function mascaraTelefone(input) {
+      let v = input.value.replace(/\D/g, "");
+      if (v.length > 11) v = v.substring(0, 11);
+      
+      v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+      v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+      input.value = v;
+    }
+
+    /* SELEÇÃO DAS OPÇÕES DE PAGAMENTO */
+    function selecionarPagamento(tipo, elemento) {
+      formaPagamentoSelecionada = tipo;
+
+      // Limpa seleções e avisos anteriores
+      document.querySelectorAll('.payment-card').forEach(card => card.classList.remove('active'));
+      document.getElementById('badge-pix').innerText = '';
+      document.getElementById('badge-cartao').innerText = '';
+      document.getElementById('badge-dinheiro').innerText = '';
+
+      // Destaca o card clicado
+      elemento.classList.add('active');
+
+      // Exibe "(pagar na entrega)" nos botões de Cartão ou Dinheiro
+      if (tipo === "Cartão") {
+        document.getElementById('badge-cartao').innerText = "pagar na entrega";
+      } else if (tipo === "Dinheiro") {
+        document.getElementById('badge-dinheiro').innerText = "pagar na entrega";
+      }
+
+      // Exibe/Oculta o campo de troco
+      const boxTroco = document.getElementById("boxTroco");
+      if (tipo === "Dinheiro") {
+        boxTroco.classList.remove("d-none");
+      } else {
+        boxTroco.classList.add("d-none");
+      }
+    }
+
+    function finalizarPedido(e) {
+      e.preventDefault();
+
+      if (carrinho.length === 0) {
+        Swal.fire('Carrinho Vazio', 'Adicione produtos ao carrinho antes de finalizar!', 'warning');
+        return;
+      }
+
+      if (!formaPagamentoSelecionada) {
+        Swal.fire('Forma de Pagamento', 'Por favor, toque em uma das opções de pagamento (Pix, Cartão ou Dinheiro).', 'info');
+        return;
+      }
+
+      const nome = document.getElementById("nomeCliente").value;
+      const whatsapp = document.getElementById("whatsAppCliente").value;
+      const endereco = document.getElementById("enderecoCliente").value;
+      const troco = document.getElementById("trocoPara").value;
+
+      const numApenas = whatsapp.replace(/\D/g, "");
+      if (numApenas.length < 10) {
+        Swal.fire('WhatsApp Inválido', 'Por favor, digite um número de WhatsApp completo com DDD.', 'error');
+        return;
+      }
+
+      let total = carrinho.reduce((sum, item) => sum + item.precoUnitario, 0);
+
+      // Salva no histórico de pedidos para a tela de Status
+      const novoPedido = {
+        id: Date.now(),
+        data: new Date().toLocaleString('pt-BR'),
+        cliente: nome,
+        itens: carrinho,
+        total: total,
+        status: "Pendente"
+      };
+
+      let ultimosPedidos = JSON.parse(localStorage.getItem("meus_pedidos_rap")) || [];
+      ultimosPedidos.unshift(novoPedido);
+      localStorage.setItem("meus_pedidos_rap", JSON.stringify(ultimosPedidos));
+
+      // Monta o texto enviado para o WhatsApp
+      let texto = `*NOVO PEDIDO - RAP DOCES DIVERSOS*\n\n`;
+      texto += `*Cliente:* ${nome}\n`;
+      texto += `*Contato:* ${whatsapp}\n`;
+      texto += `*Endereço:* ${endereco}\n`;
+      texto += `*Pagamento:* ${formaPagamentoSelecionada}${formaPagamentoSelecionada !== 'Pix' ? ' (Pagar na entrega)' : ''}${formaPagamentoSelecionada === 'Dinheiro' && troco ? ` - Troco: ${troco}` : ''}\n\n`;
+      texto += `*ITENS DO PEDIDO:*\n`;
+
+      carrinho.forEach(item => {
+        texto += `• ${item.doceNome} (${item.variacaoNome}) - R$ ${item.precoUnitario.toFixed(2).replace(".", ",")}\n`;
+      });
+
+      texto += `\n*TOTAL: R$ ${total.toFixed(2).replace(".", ",")}*`;
+
+      localStorage.removeItem("carrinho_rap_doces");
+
+      // Substitua com o número WhatsApp oficial da loja
+      const numeroLoja = "5516999999999"; 
+      const urlWhats = `https://api.whatsapp.com/send?phone=${numeroLoja}&text=${encodeURIComponent(texto)}`;
+
+      window.location.href = urlWhats;
+    }
+
+    carregarCarrinho();
+  </script>
+</body>
+</html>

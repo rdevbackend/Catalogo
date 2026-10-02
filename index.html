@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rap Doces Diversos - Catálogo</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    :root {
+      --rap-orange: #FF7300;
+      --rap-pink: #FF3B82;
+      --rap-gradient: linear-gradient(135deg, #FF7300 0%, #FF3B82 100%);
+      --bg-soft: #F8F9FA;
+    }
+
+    body {
+      background-color: var(--bg-soft);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #2D3748;
+      padding-bottom: 90px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cabeçalho no estilo iFood */
+    .store-header {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 14px 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .brand-logo {
+      height: 52px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.06));
+    }
+
+    .brand-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #16a34a;
+      background: #f0fdf4;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid #bbf7d0;
+    }
+
+    .category-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 6px 0;
+      scrollbar-width: none;
+    }
+    .category-scroll::-webkit-scrollbar { display: none; }
+
+    .category-chip {
+      background: #FFFFFF;
+      border: 2px solid #EDF2F7;
+      color: #718096;
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: nowrap;
+    }
+
+    .category-chip:hover, .category-chip.active {
+      background: var(--rap-gradient);
+      color: #FFFFFF;
+      border-color: transparent;
+      box-shadow: 0 6px 16px rgba(255, 59, 130, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .food-card {
+      background: #FFFFFF;
+      border: 2px solid #EDF2F7;
+      border-radius: 24px;
+      padding: 18px;
+      transition: all 0.3s ease;
+    }
+
+    .food-card:hover {
+      border-color: var(--rap-orange);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      transform: translateY(-3px);
+    }
+
+    .food-card.selected {
+      border-color: #6C5CE7;
+      background: #F8F7FF;
+    }
+
+    .food-img {
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: 18px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .variation-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #94A3B8;
+      margin-bottom: 4px;
+    }
+
+    .variation-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .variation-chip {
+      background: #FFFFFF;
+      border: 2px solid #E2E8F0;
+      color: #334155;
+      border-radius: 50px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .variation-chip.active {
+      background: #FFF5F0;
+      border-color: var(--rap-orange);
+      color: var(--rap-orange);
+    }
+
+    .btn-add {
+      background: #FFFFFF;
+      border: 2px solid var(--rap-orange);
+      color: var(--rap-orange);
+      font-weight: 700;
+      border-radius: 50px;
+      padding: 6px 18px;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add:hover, .btn-add:active {
+      background: var(--rap-gradient);
+      color: #FFFFFF;
+      border-color: transparent;
+      transform: scale(1.05);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      z-index: 1000;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .nav-item-link {
+      text-decoration: none;
+      color: #A0AEC0;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item-link.active {
+      color: var(--rap-pink);
+      transform: translateY(-2px);
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      background: var(--rap-pink);
+      color: white;
+      border-radius: 50%;
+      padding: 2px 6px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      box-shadow: 0 2px 6px rgba(255, 59, 130, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topo Estilo iFood -->
+  <div class="store-header mb-4">
+    <div class="container d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-3">
+        <img src="logo.jpeg" alt="Rap Doces Diversos" class="brand-logo">
+        <div class="d-none d-sm-block">
+          <h5 class="fw-bold mb-0" style="font-size: 1.1rem; color: #1A202C;">Rap Doces Diversos</h5>
+          <span class="text-muted small" style="font-size: 0.78rem;">Doces, Arte e Cultura 🍭🎤</span>
+        </div>
+      </div>
+
+      <div class="brand-badge d-flex align-items-center gap-1">
+        <i class="bi bi-circle-fill" style="font-size: 6px;"></i> Aberto
+      </div>
+    </div>
+  </div>
+
+  <div class="container max-w-md">
+    <!-- Categorias -->
+    <div class="category-scroll mb-4">
+      <div class="category-chip active" onclick="filtrarCategoria('Todos', event)">🔥 Todos</div>
+      <div class="category-chip" onclick="filtrarCategoria('Brigadeiros', event)">🍫 Brigadeiros</div>
+      <div class="category-chip" onclick="filtrarCategoria('Bolos no Pote', event)">🍰 Bolos no Pote</div>
+      <div class="category-chip" onclick="filtrarCategoria('Trufas', event)">🍬 Trufas</div>
+    </div>
+
+    <h6 class="fw-bold mb-3 text-secondary" style="letter-spacing: 0.5px;">CARDÁPIO DE HOJE</h6>
+    <div class="row g-3" id="gridProdutos"></div>
+  </div>
+
+  <!-- Barra de Navegação -->
+  <div class="bottom-nav">
+    <a href="index.html" class="nav-item-link active">
+      <i class="bi bi-grid-fill fs-5"></i>
+      <span>Início</span>
+    </a>
+    <a href="carrinho.html" class="nav-item-link position-relative">
+      <i class="bi bi-bag-fill fs-5"></i>
+      <span>Carrinho</span>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </a>
+    <a href="consultar.html" class="nav-item-link">
+      <i class="bi bi-clock-history fs-5"></i>
+      <span>Status</span>
+    </a>
+  </div>
+
+  <script>
+    const produtos = [
+      {
+        id: 1,
+        nome: "Brigadeiro Gourmet Tradicional",
+        categoria: "Brigadeiros",
+        descricao: "Descrição.",
+        imagem: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=300",
+        selecionada: 0,
+        variacoes: [
+          { nome: "Caixa c/ 6 un", preco: 18.00 },
+          { nome: "Caixa c/ 12 un", preco: 32.00 }
+        ]
+      },
+      {
+        id: 2,
+        nome: "Bolo no Pote Ninho c/ Nutella",
+        categoria: "Bolos no Pote",
+        descricao: "Descrição.",
+        imagem: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300",
+        selecionada: 0,
+        variacoes: [
+          { nome: "Pote 250ml", preco: 14.00 },
+          { nome: "Pote 500ml", preco: 24.00 }
+        ]
+      },
+      {
+        id: 3,
+        nome: "Trufa Artesanal de Morango",
+        categoria: "Trufas",
+        descricao: "Descrição.",
+        imagem: "https://images.unsplash.com/photo-1548848221-0c2e4e735351?w=300",
+        selecionada: 0,
+        variacoes: [
+          { nome: "Unidade", preco: 6.00 },
+          { nome: "Kit c/ 4 un", preco: 20.00 }
+        ]
+      }
+    ];
+
+    function carregarProdutos(listaExibicao = produtos) {
+      const grid = document.getElementById("gridProdutos");
+      grid.innerHTML = "";
+
+      if (listaExibicao.length === 0) {
+        grid.innerHTML = `
+          <div class="col-12 text-center py-4 text-muted">
+            <i class="bi bi-search fs-3 d-block mb-2"></i>
+            Nenhum doce encontrado nesta categoria.
+          </div>
+        `;
+        return;
+      }
+
+      listaExibicao.forEach(p => {
+        let chipsHtml = p.variacoes.map((v, idx) => {
+          const isActive = idx === p.selecionada ? "active" : "";
+          const icon = idx === p.selecionada ? "bi-check-circle-fill text-orange" : "bi-circle";
+          return `
+            <div class="variation-chip ${isActive}" onclick="selecionarVariacao(${p.id}, ${idx})">
+              <i class="bi ${icon}"></i> ${v.nome} - R$ ${v.preco.toFixed(2).replace(".", ",")}
+            </div>
+          `;
+        }).join("");
+
+        grid.innerHTML += `
+          <div class="col-12">
+            <div class="food-card d-flex justify-content-between align-items-center gap-3" id="card-${p.id}">
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-1" style="font-size:0.95rem;">${p.nome}</h6>
+                <p class="text-muted small mb-2" style="font-size:0.8rem;">${p.descricao}</p>
+                
+                <div class="variation-title">ESCOLHA A OPÇÃO:</div>
+                <div class="variation-container">
+                  ${chipsHtml}
+                </div>
+
+                <button class="btn btn-add shadow-sm mt-1" onclick="adicionarAoCarrinho(${p.id})">
+                  + Adicionar
+                </button>
+              </div>
+              <img src="${p.imagem}" alt="${p.nome}" class="food-img">
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filtrarCategoria(categoria, event) {
+      // 1. Atualizar visual da chip selecionada
+      const chips = document.querySelectorAll('.category-chip');
+      chips.forEach(chip => chip.classList.remove('active'));
+      if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+      }
+
+      // 2. Filtrar produtos
+      if (categoria === 'Todos') {
+        carregarProdutos(produtos);
+      } else {
+        const filtrados = produtos.filter(p => {
+          const cat = (p.categoria || '').toLowerCase();
+          const nome = (p.nome || '').toLowerCase();
+          const filtro = categoria.toLowerCase();
+          return cat.includes(filtro) || nome.includes(filtro);
+        });
+        carregarProdutos(filtrados);
+      }
+    }
+
+    function selecionarVariacao(produtoId, varIdx) {
+      const prod = produtos.find(p => p.id === produtoId);
+      prod.selecionada = varIdx;
+      
+      // Manter a categoria ativa ao atualizar a seleção da variação
+      const chipAtivo = document.querySelector('.category-chip.active');
+      const nomeCategoria = chipAtivo ? chipAtivo.innerText.replace(/[^a-zA-ZáàâãéèêíóôõúçÁÀÂÃÉÈÊÍÓÔÕÚÇ\s]/g, '').trim() : 'Todos';
+      
+      if (nomeCategoria === 'Todos') {
+        carregarProdutos(produtos);
+      } else {
+        filtrarCategoria(nomeCategoria, null);
+      }
+    }
+
+    function adicionarAoCarrinho(id) {
+      const prod = produtos.find(p => p.id === id);
+      const variacao = prod.variacoes[prod.selecionada];
+
+      let carrinho = JSON.parse(localStorage.getItem("carrinho_rap_doces")) || [];
+      
+      carrinho.push({
+        doceNome: prod.nome,
+        variacaoNome: variacao.nome,
+        precoUnitario: variacao.preco,
+        imagem: prod.imagem
+      });
+
+      localStorage.setItem("carrinho_rap_doces", JSON.stringify(carrinho));
+      atualizarBadge();
+
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        card.classList.add("selected");
+        setTimeout(() => card.classList.remove("selected"), 500);
+      }
+
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Adicionado ao carrinho!',
+        showConfirmButton: false,
+        timer: 1000
+      });
+    }
+
+    function atualizarBadge() {
+      let carrinho = JSON.parse(localStorage.getItem("carrinho_rap_doces")) || [];
+      document.getElementById("cartBadge").innerText = carrinho.length;
+    }
+
+    // Inicialização
+    carregarProdutos();
+    atualizarBadge();
+  </script>
+</body>
+</html>
