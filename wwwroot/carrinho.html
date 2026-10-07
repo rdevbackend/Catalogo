@@ -266,7 +266,7 @@
         <input type="text" class="form-control" id="trocoPara" placeholder="Ex: R$ 50,00 ou Não preciso de troco">
       </div>
 
-      <button type="submit" class="btn btn-confirm mt-2 mb-4">
+      <button type="submit" class="btn btn-confirm mt-2 mb-4" id="btnEnviar">
         <i class="bi bi-whatsapp me-2"></i> Confirmar e Enviar Pedido
       </button>
     </form>
@@ -290,6 +290,9 @@
   </div>
 
   <script>
+    // URL da API C#
+    const API_URL = "https://catalogo-ch3m.onrender.com/api";
+
     let carrinho = [];
     let formaPagamentoSelecionada = "";
 
@@ -379,7 +382,7 @@
       }
     }
 
-    function finalizarPedido(e) {
+    async function finalizarPedido(e) {
       e.preventDefault();
 
       if (carrinho.length === 0) {
@@ -404,15 +407,39 @@
       }
 
       let total = carrinho.reduce((sum, item) => sum + item.precoUnitario, 0);
+      const codigoPedido = "#RAP" + Math.floor(1000 + Math.random() * 9000);
 
-      // Salva no histórico de pedidos para a tela de Status
+      // Objeto formatado para envio à API backend C#
+      const dadosPedidoApi = {
+        pedidoCodigo: codigoPedido,
+        clienteNome: nome,
+        clienteTelefone: whatsapp,
+        enderecoEntrega: endereco,
+        itensJson: JSON.stringify(carrinho),
+        valorTotal: total,
+        status: "Recebido",
+        statusPagamento: formaPagamentoSelecionada + (troco ? ` (Troco: ${troco})` : "")
+      };
+
+      // Tenta salvar na API C# via fetch
+      try {
+        await fetch(`${API_URL}/pedidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dadosPedidoApi)
+        });
+      } catch (erro) {
+        console.log("Não foi possível registrar o pedido no servidor de banco de dados. Prosseguindo localmente.");
+      }
+
+      // Salva no histórico local de pedidos para a tela de Status
       const novoPedido = {
-        id: Date.now(),
+        id: codigoPedido,
         data: new Date().toLocaleString('pt-BR'),
         cliente: nome,
         itens: carrinho,
         total: total,
-        status: "Pendente"
+        status: "Recebido"
       };
 
       let ultimosPedidos = JSON.parse(localStorage.getItem("meus_pedidos_rap")) || [];
@@ -420,7 +447,7 @@
       localStorage.setItem("meus_pedidos_rap", JSON.stringify(ultimosPedidos));
 
       // Monta o texto enviado para o WhatsApp
-      let texto = `*NOVO PEDIDO - RAP DOCES DIVERSOS*\n\n`;
+      let texto = `*NOVO PEDIDO ${codigoPedido} - RAP DOCES DIVERSOS*\n\n`;
       texto += `*Cliente:* ${nome}\n`;
       texto += `*Contato:* ${whatsapp}\n`;
       texto += `*Endereço:* ${endereco}\n`;
@@ -435,7 +462,7 @@
 
       localStorage.removeItem("carrinho_rap_doces");
 
-      // Substitua com o número WhatsApp oficial da loja
+      // Número oficial WhatsApp da loja
       const numeroLoja = "5516999999999"; 
       const urlWhats = `https://api.whatsapp.com/send?phone=${numeroLoja}&text=${encodeURIComponent(texto)}`;
 

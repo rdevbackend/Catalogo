@@ -267,7 +267,10 @@
   </div>
 
   <script>
-    const produtos = [
+    // URL da tua API no Render
+    const API_URL = "https://catalogo-ch3m.onrender.com/api";
+
+    let produtos = [
       {
         id: 1,
         nome: "Brigadeiro Gourmet Tradicional",
@@ -305,6 +308,22 @@
         ]
       }
     ];
+
+    // Busca produtos da API C# no Render ou usa os locais se a API não estiver disponível
+    async function inicializarProdutos() {
+      try {
+        const resposta = await fetch(`${API_URL}/doces`);
+        if (resposta.ok) {
+          const dadosApi = await resposta.json();
+          if (dadosApi && dadosApi.length > 0) {
+            produtos = dadosApi.map(p => ({ ...p, selecionada: 0 }));
+          }
+        }
+      } catch (erro) {
+        console.log("Usando produtos locais padrão.");
+      }
+      carregarProdutos();
+    }
 
     function carregarProdutos(listaExibicao = produtos) {
       const grid = document.getElementById("gridProdutos");
@@ -355,14 +374,12 @@
     }
 
     function filtrarCategoria(categoria, event) {
-      // 1. Atualizar visual da chip selecionada
       const chips = document.querySelectorAll('.category-chip');
       chips.forEach(chip => chip.classList.remove('active'));
       if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
       }
 
-      // 2. Filtrar produtos
       if (categoria === 'Todos') {
         carregarProdutos(produtos);
       } else {
@@ -380,7 +397,6 @@
       const prod = produtos.find(p => p.id === produtoId);
       prod.selecionada = varIdx;
       
-      // Manter a categoria ativa ao atualizar a seleção da variação
       const chipAtivo = document.querySelector('.category-chip.active');
       const nomeCategoria = chipAtivo ? chipAtivo.innerText.replace(/[^a-zA-ZáàâãéèêíóôõúçÁÀÂÃÉÈÊÍÓÔÕÚÇ\s]/g, '').trim() : 'Todos';
       
@@ -429,7 +445,7 @@
     }
 
     // Inicialização
-    carregarProdutos();
+    inicializarProdutos();
     atualizarBadge();
   </script>
 </body>

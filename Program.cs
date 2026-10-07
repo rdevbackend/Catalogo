@@ -1,48 +1,30 @@
+using Catalogo.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do SQLite
+// 1. Configura a ligação ao SQLite a partir do appsettings.json
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=doceria.db"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAll", policy =>
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-});
-
+// 2. Adiciona suporte para Controllers API
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Garante que o banco de dados e as tabelas sejam criados ao iniciar
+// 3. Cria automaticamente a base de dados SQLite e tabelas se ainda não existirem
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
 
-app.UseCors("AllowAll");
+// 4. Configura o servidor para entregar os ficheiros da pasta wwwroot (index.html, carrinho.html, etc.)
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
-
-// Database Context
-public class AppDbContext : DbContext
-{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-    public DbSet<Pedido> Pedidos { get; set; }
-}
-
-public class Pedido
-{
-    public int Id { get; set; }
-    public string PedidoCodigo { get; set; } = string.Empty;
-    public string ClienteNome { get; set; } = string.Empty;
-    public string ClienteTelefone { get; set; } = string.Empty;
-    public string EnderecoEntrega { get; set; } = string.Empty;
-    public string ItensJson { get; set; } = string.Empty;
-    public decimal ValorTotal { get; set; }
-    public string Status { get; set; } = "Recebido"; // Recebido, Em Preparo, Saiu para Entrega, Entregue
-    public DateTime DataCriacao { get; set; } = DateTime.Now;
-    public string StatusPagamento { get; set; } = "Aguardando";
-}
